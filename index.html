@@ -303,7 +303,15 @@
     };
 
     const state = JSON.parse(localStorage.getItem('bloomState') || '{}');
-    state.history = state.history || [];
+    // Migração: remove os dados fictícios que existiam na primeira versão do MVP.
+    const legacyFakeHistory = Array.isArray(state.history) && state.history.length === 3 &&
+      state.history.some(h => h.date === '14 jul' && h.workout === 'Treino B') &&
+      state.history.some(h => h.date === '11 jul' && h.workout === 'Treino A') &&
+      state.history.some(h => h.date === '9 jul' && h.workout === 'Treino D');
+    if (legacyFakeHistory) {
+      Object.keys(state).forEach(key => delete state[key]);
+    }
+    state.history = Array.isArray(state.history) ? state.history : [];
     state.hipHistory = state.hipHistory || [];
     state.measures = state.measures || [];
     state.lastValues = state.lastValues || {};
